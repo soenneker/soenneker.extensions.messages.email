@@ -14,7 +14,7 @@
         <AssemblyName>Soenneker.Extensions.Messages.Email</AssemblyName>
         <PackageId>Soenneker.Extensions.Messages.Email</PackageId>
         <PackageTags>extensions messages email message emailmessage extension mime smtp emailmessagesextension csharp dotnet c# .net</PackageTags>
-        <Copyright>Copyright © 2025 Jake Soenneker</Copyright>
+        <Copyright>Copyright © 2025-2026 Jake Soenneker</Copyright>
         <Authors>Jake Soenneker</Authors>
         <Company>https://soenneker.com</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
