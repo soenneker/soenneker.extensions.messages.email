@@ -4,7 +4,7 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.extensions.messages.email/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.extensions.messages.email/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Extensions.Messages.Email
-A collection of helpful EmailMessage extension methods.
+Turns the public properties declared by an `EmailMessage` runtime type into string tokens for email templating.
 
 ## Installation
 
@@ -12,14 +12,18 @@ A collection of helpful EmailMessage extension methods.
 dotnet add package Soenneker.Extensions.Messages.Email
 ```
 
-## Quick start
+## Usage
 
 ```csharp
 using Soenneker.Extensions.Messages.Email;
+
+EmailMessage message = CreateEmailMessage();
+Dictionary<string, string> tokens = message.ToTokenDictionary();
+
+string subject = tokens["subject"];
+// subject == message.Subject
 ```
 
-Import the namespace, then call the extension methods directly on the matching value.
+Token names come from `[JsonPropertyName]` when present (`Subject` therefore becomes `subject`); otherwise the CLR property name is used. Values are converted with `Convert.ToString`, so this is a flat token dictionary—not JSON serialization. Collections and dictionaries are not expanded into individual tokens. Only readable, non-indexed public properties declared directly on `EmailMessage` are included; properties inherited from its base message type are excluded. A null message returns an empty dictionary.
 
-## Common operations
-
-- `ToTokenDictionary()` - Converts the properties of an EmailMessage into a dictionary of token strings for use in email templates. Returns a dictionary where each key-value pair represents a token and its string value.
+Property metadata is cached per runtime type, making repeated conversion inexpensive.
