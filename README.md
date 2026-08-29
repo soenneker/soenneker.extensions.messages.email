@@ -4,10 +4,22 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.extensions.messages.email/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.extensions.messages.email/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Extensions.Messages.Email
-### A collection of helpful EmailMessage extension methods
+A collection of helpful EmailMessage extension methods.
 
 ## Installation
 
-```
+```bash
 dotnet add package Soenneker.Extensions.Messages.Email
 ```
+
+## Quick start
+
+```csharp
+using Soenneker.Extensions.Messages.Email;
+```
+
+Import the namespace, then call the extension methods directly on the matching value.
+
+## Common operations
+
+- `ToTokenDictionary()` - Converts the properties of an EmailMessage into a dictionary of token strings for use in email templates. Returns a dictionary where each key-value pair represents a token and its string value.
