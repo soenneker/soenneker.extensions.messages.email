@@ -4,7 +4,7 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.extensions.messages.email/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.extensions.messages.email/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Extensions.Messages.Email
-Extension methods for converting and preparing `EmailMessage` objects for templates, transports, and other email-processing stages.
+Converts the email-specific properties of an `EmailMessage` into a flat string token dictionary.
 
 ## Installation
 
@@ -24,6 +24,16 @@ string subject = tokens["subject"];
 // subject == message.Subject
 ```
 
-Token names come from `[JsonPropertyName]` when present (`Subject` therefore becomes `subject`); otherwise the CLR property name is used. Values are converted with `Convert.ToString`, so this is a flat token dictionary—not JSON serialization. Collections and dictionaries are not expanded into individual tokens. Only readable, non-indexed public properties declared directly on `EmailMessage` are included; properties inherited from its base message type are excluded. A null message returns an empty dictionary.
+Token names come from `[JsonPropertyName]` when present (`Subject` therefore becomes `subject`); otherwise the CLR property name is used. Only readable, non-indexed public properties declared directly on the sealed `EmailMessage` type are included. Routing and audit properties inherited from its base message envelope are excluded.
 
-Property metadata is cached per runtime type, making repeated conversion inexpensive.
+Values use `Convert.ToString(object)`. Null property values become empty strings, and other values use their normal string conversion under the current culture. This is not JSON serialization: recipient lists, token dictionaries, and partial dictionaries are not expanded into child entries and generally convert to their .NET type name. Add their contents explicitly when a template needs them.
+
+```csharp
+Dictionary<string, string> tokens = message.ToTokenDictionary();
+tokens["recipientName"] = customer.DisplayName;
+tokens["orderTotal"] = order.Total.ToString("C", culture);
+```
+
+A null message returns a new empty dictionary. Every call returns a new ordinal-keyed dictionary, so modifying it does not modify the message. Property metadata is cached for repeated conversion; property values are read afresh on every call.
+
+Email properties can contain addresses, subject text, and other personal data. Treat the resulting dictionary as message content and avoid logging or persisting it outside the email-processing boundary.
