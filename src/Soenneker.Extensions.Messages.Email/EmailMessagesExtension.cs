@@ -26,7 +26,7 @@ public static class EmailMessagesExtension
 
         (PropertyInfo[] props, string[] names) = _propertyCache.GetOrAdd(message.GetType(), static type =>
         {
-            PropertyInfo[] raw = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            PropertyInfo[] raw = typeof(EmailMessage).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
             var count = 0;
 
             for (var i = 0; i < raw.Length; i++)
