@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Reflection;
-using System.Text.Json.Serialization;
 using Soenneker.Messages.Email;
 
 namespace Soenneker.Extensions.Messages.Email;
@@ -12,8 +9,6 @@ namespace Soenneker.Extensions.Messages.Email;
 /// </summary>
 public static class EmailMessagesExtension
 {
-    private static readonly ConcurrentDictionary<Type, (PropertyInfo[] Props, string[] Names)> _propertyCache = new();
-
     /// <summary>
     /// Converts the properties of an EmailMessage into a dictionary of token strings for use in email templates.
     /// </summary>
@@ -24,41 +19,21 @@ public static class EmailMessagesExtension
         if (message is null)
             return new Dictionary<string, string>();
 
-        (PropertyInfo[] props, string[] names) = _propertyCache.GetOrAdd(message.GetType(), static type =>
+        return new Dictionary<string, string>(13, StringComparer.Ordinal)
         {
-            PropertyInfo[] raw = typeof(EmailMessage).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-            var count = 0;
-
-            for (var i = 0; i < raw.Length; i++)
-            {
-                PropertyInfo property = raw[i];
-                if (property.CanRead && property.GetIndexParameters().Length == 0)
-                    count++;
-            }
-
-            var properties = new PropertyInfo[count];
-            var propertyNames = new string[count];
-            var destination = 0;
-
-            for (var i = 0; i < raw.Length; i++)
-            {
-                PropertyInfo property = raw[i];
-                if (!property.CanRead || property.GetIndexParameters().Length != 0)
-                    continue;
-
-                properties[destination] = property;
-                propertyNames[destination] = property.GetCustomAttribute<JsonPropertyNameAttribute>(false)?.Name ?? property.Name;
-                destination++;
-            }
-
-            return (properties, propertyNames);
-        });
-
-        var result = new Dictionary<string, string>(props.Length, StringComparer.Ordinal);
-
-        for (var i = 0; i < props.Length; i++)
-            result.Add(names[i], Convert.ToString(props[i].GetValue(message))!);
-
-        return result;
+            ["to"] = Convert.ToString((object?)message.To)!,
+            ["cc"] = Convert.ToString((object?)message.Cc)!,
+            ["bcc"] = Convert.ToString((object?)message.Bcc)!,
+            ["replyTo"] = Convert.ToString((object?)message.ReplyTo)!,
+            ["name"] = Convert.ToString((object?)message.Name)!,
+            ["address"] = Convert.ToString((object?)message.Address)!,
+            ["subject"] = Convert.ToString((object?)message.Subject)!,
+            ["contentFileName"] = Convert.ToString((object?)message.ContentFileName)!,
+            ["templateFileName"] = Convert.ToString((object?)message.TemplateFileName)!,
+            ["format"] = Convert.ToString((object?)message.Format)!,
+            ["priority"] = Convert.ToString((object?)message.Priority)!,
+            ["tokens"] = Convert.ToString((object?)message.Tokens)!,
+            ["partials"] = Convert.ToString((object?)message.Partials)!,
+        };
     }
 }
